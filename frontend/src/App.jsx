@@ -4,6 +4,7 @@ import {
   Package,
   User,
   LogIn,
+  LogOut,   // 👈 THÊM DÒNG NÀY
   ArrowRight,
   Shield,
   QrCode,
@@ -20,6 +21,7 @@ import {
   Send,
   Bot,
 } from "lucide-react";
+
 
 // --- 1. CẤU HÌNH API & UTILS ---
 const API_URL = "http://127.0.0.1:8000";

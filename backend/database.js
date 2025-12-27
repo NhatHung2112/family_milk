@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // Thay 'milk_family_db' bằng tên database bạn muốn
-const MONGO_URI = "mongodb://localhost:27017/milk_family_db";
+const MONGO_URI = "mongodb://localhost:27017/milk_qr_blockchain_db";
 
 const connectDB = async () => {
   try {
