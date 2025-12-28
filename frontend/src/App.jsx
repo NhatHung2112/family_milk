@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import QRScanner from "./components/QRScanner"; // <--- Import file vừa tạo
 import {
   Package,
   User,
-  LogIn,
-  LogOut,   // 👈 THÊM DÒNG NÀY
+  LogOut,
   ArrowRight,
-  Shield,
   QrCode,
   History,
   RefreshCcw,
@@ -15,17 +13,14 @@ import {
   Plus,
   List,
   ArrowLeft,
-  Search,
   CheckCircle,
   MessageCircle,
   Send,
   Bot,
 } from "lucide-react";
 
-
 // --- 1. CẤU HÌNH API & UTILS ---
 const API_URL = "http://127.0.0.1:8000";
-const HIDDEN_KEY = "hidden_products_local";
 
 const api = {
   getProducts: async () => {
@@ -87,45 +82,7 @@ const api = {
   },
 };
 
-// --- 2. COMPONENTS CON ---
-
-const QRScanner = ({ onScan, onClose }) => {
-  useEffect(() => {
-    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-    scanner.render(
-      (txt) => {
-        scanner.clear();
-        const uid = txt.includes("uid=") ? txt.split("uid=")[1] : txt;
-        onScan(uid);
-      },
-      (err) => {}
-    );
-    return () => {
-      try {
-        scanner.clear();
-      } catch (e) {}
-    };
-  }, [onScan]);
-
-  return (
-    <div
-      className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center"
-      style={{ zIndex: 2000 }}
-    >
-      <div
-        className="bg-white p-4 rounded-4"
-        style={{ maxWidth: "500px", width: "90%" }}
-      >
-        <div className="d-flex justify-content-between mb-2">
-          <h5>Quét Mã QR</h5>
-          <button className="btn-close" onClick={onClose}></button>
-        </div>
-        <div id="reader"></div>
-      </div>
-    </div>
-  );
-};
-
+// --- 2. COMPONENTS CON (Chatbot) ---
 const Chatbot = ({ productName }) => {
   const [messages, setMessages] = useState([
     {

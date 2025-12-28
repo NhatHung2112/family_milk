@@ -54,7 +54,7 @@ const api = {
   },
 };
 
-// --- COMPONENTS CON (Tích hợp trực tiếp để tránh lỗi import) ---
+// --- COMPONENTS CON ---
 
 const ProductCard = ({ product, onClick }) => (
   <div className="col-6 col-md-4 col-lg-3 mb-4">
@@ -112,23 +112,56 @@ const ProductCard = ({ product, onClick }) => (
   </div>
 );
 
+// --- [FIXED] QRScanner Component ---
 const QRScanner = ({ onScan, onClose }) => {
+  const scannerRef = useRef(null);
+
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-    scanner.render(
-      (txt) => {
-        scanner.clear();
-        const uid = txt.includes("uid=") ? txt.split("uid=")[1] : txt;
-        onScan(uid);
-      },
-      (err) => {}
-    );
+    // Khởi tạo scanner
+    // Chú ý: Dùng setTimeout nhỏ để đảm bảo DOM đã render xong div#reader
+    const timer = setTimeout(() => {
+      if (!scannerRef.current) {
+        const scanner = new Html5QrcodeScanner("reader", {
+          fps: 10,
+          qrbox: 250,
+          verbose: false,
+        });
+        scannerRef.current = scanner;
+
+        scanner.render(
+          (txt) => {
+            // Khi quét thành công, dọn dẹp scanner ngay lập tức để giải phóng camera
+            scanner
+              .clear()
+              .then(() => {
+                const uid = txt.includes("uid=") ? txt.split("uid=")[1] : txt;
+                onScan(uid);
+              })
+              .catch((err) => {
+                console.error("Lỗi khi tắt camera:", err);
+                // Vẫn trả kết quả kể cả khi lỗi clear
+                const uid = txt.includes("uid=") ? txt.split("uid=")[1] : txt;
+                onScan(uid);
+              });
+          },
+          (err) => {
+            // Bỏ qua lỗi quét liên tục
+          }
+        );
+      }
+    }, 100);
+
+    // Cleanup function: Chạy khi component bị đóng
     return () => {
-      try {
-        scanner.clear();
-      } catch (e) {}
+      clearTimeout(timer);
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch((err) => {
+          console.error("Failed to clear scanner on unmount", err);
+        });
+        scannerRef.current = null;
+      }
     };
-  }, [onScan]);
+  }, []); // <--- Quan trọng: Để mảng rỗng [] để chỉ khởi tạo 1 lần duy nhất
 
   return (
     <div
